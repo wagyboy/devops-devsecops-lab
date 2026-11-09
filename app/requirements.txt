@@ -1,6 +1,6 @@
 # pinned when the shop was first written (late 2022)
 Flask==2.2.2
-Werkzeug==2.2.2
+Werkzeug==3.1.9
 Jinja2==3.1.2
 MarkupSafe==2.1.1
 itsdangerous==2.1.2
