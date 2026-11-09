@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - run: pip install flake8==7.4.1 flake8-bandit==4.1.1 flake8-bugbear==26.10.27
