@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>A9 Shop</title>
+</head>
+<body>
+  <h1>A9 Shop</h1>
+  <form action="/search" method="get">
+    <input name="q" placeholder="Search products">
+    <button type="submit">Search</button>
+  </form>
+  <ul>
+    {% for p in products %}
+    <li>{{ p.name }} ({{ p.sku }}): ${{ p.price }}, {{ p.stock }} left</li>
+    {% endfor %}
+  </ul>
+</body>
+</html>

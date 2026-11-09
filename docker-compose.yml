@@ -1,0 +1,7 @@
+name: a9-devsecops
+services:
+  shop:
+    build: ./app
+    image: a9-shop:local
+    ports:
+      - "8000:8000"

@@ -1,0 +1,19 @@
+# Dependabot version updates: open a PR when a newer version of a dependency is released.
+# Security updates (PRs for known CVEs) are switched on in Settings -> Code security.
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: /app
+    schedule:
+      interval: weekly
+    groups:
+      flask-stack:
+        patterns: ["Flask", "Werkzeug", "Jinja2", "MarkupSafe", "itsdangerous", "click"]
+  - package-ecosystem: docker
+    directory: /app
+    schedule:
+      interval: weekly
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
