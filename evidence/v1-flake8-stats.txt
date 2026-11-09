@@ -1,0 +1,11 @@
+1     B001 Do not use bare `except:`, it also catches unexpected events like memory errors, interrupts, system exit, and so on.  Prefer excepting specific exceptions  If you're sure what you're doing, be explicit and write `except BaseException:`.
+1     E501 line too long (123 > 120 characters)
+1     E722 do not use bare 'except'
+1     F401 'json' imported but unused
+1     S104 Possible binding to all interfaces.
+1     S105 Possible hardcoded password: 'dev-secret-change-me'
+1     S108 Probable insecure usage of temp file/directory.
+1     S201 A Flask app appears to be run with debug=True, which exposes the Werkzeug debugger and allows the execution of arbitrary code.
+1     S311 Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+1     S608 Possible SQL injection vector through string-based query construction.
+10

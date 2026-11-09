@@ -1,0 +1,10 @@
+app\shop.py:5:1: F401 'json' imported but unused
+app\shop.py:10:1: S105 Possible hardcoded password: 'dev-secret-change-me'
+app\shop.py:12:1: S108 Probable insecure usage of temp file/directory.
+app\shop.py:23:121: E501 line too long (123 > 120 characters)
+app\shop.py:42:1: S608 Possible SQL injection vector through string-based query construction.
+app\shop.py:57:1: S311 Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+app\shop.py:69:5: B001 Do not use bare `except:`, it also catches unexpected events like memory errors, interrupts, system exit, and so on.  Prefer excepting specific exceptions  If you're sure what you're doing, be explicit and write `except BaseException:`.
+app\shop.py:69:5: E722 do not use bare 'except'
+app\shop.py:76:1: S201 A Flask app appears to be run with debug=True, which exposes the Werkzeug debugger and allows the execution of arbitrary code.
+app\shop.py:76:1: S104 Possible binding to all interfaces.

@@ -1,0 +1,4 @@
+GET  /health                      200
+GET  /                            200
+GET  /search?q=desk               200
+POST /api/buy/SKU-100?qty=1       200

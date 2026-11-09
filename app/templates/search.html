@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Search: {{ q }}</title>
+</head>
+<body>
+  <h1>Results for {{ q }}</h1>
+  <ul>
+    {% for p in products %}
+    <li>{{ p.name }} - ${{ p.price }}</li>
+    {% else %}
+    <li>No products found.</li>
+    {% endfor %}
+  </ul>
+  <a href="/">back</a>
+</body>
+</html>

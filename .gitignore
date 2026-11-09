@@ -5,3 +5,4 @@ build/preview/
 build/report.html
 *.pdf
 .trivycache/
+evidence/*.json

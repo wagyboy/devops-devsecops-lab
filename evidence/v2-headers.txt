@@ -1,0 +1,16 @@
+HTTP/1.1 200 OK
+Server: gunicorn
+Date: Mon, 09 Nov 2026 21:29:51 GMT
+Connection: close
+Content-Type: text/html; charset=utf-8
+Content-Length: 474
+Content-Security-Policy: default-src 'self'; frame-ancestors 'none'; form-action 'self'
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+Referrer-Policy: no-referrer
+Permissions-Policy: camera=(), microphone=(), geolocation=()
+Cross-Origin-Resource-Policy: same-origin
+Cross-Origin-Opener-Policy: same-origin
+Cross-Origin-Embedder-Policy: require-corp
+Cache-Control: no-store
+

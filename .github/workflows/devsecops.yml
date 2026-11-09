@@ -16,8 +16,8 @@ jobs:
     name: Lint (Flake8 + bandit + bugbear)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - run: pip install flake8==7.4.1 flake8-bandit==4.1.1 flake8-bugbear==26.10.27
@@ -32,9 +32,9 @@ jobs:
     container:
       image: semgrep/semgrep:1.183.0
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Semgrep scan
-        run: semgrep scan --config p/python --config p/flask --config p/secrets --sarif --output semgrep.sarif --error --metrics off
+        run: semgrep scan --config p/python --config p/flask --config p/secrets --sarif --output semgrep.sarif --error --metrics off app scripts
       - uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
@@ -45,7 +45,7 @@ jobs:
     name: Dockerfile lint (Hadolint)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Hadolint
         run: docker run --rm -i hadolint/hadolint:v2.12.0 hadolint --failure-threshold warning - < app/Dockerfile
 
@@ -56,13 +56,14 @@ jobs:
       contents: read
       security-events: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Build image
         run: docker build -t a9-shop:${{ github.sha }} app
       # Pinned to a commit SHA, not a tag: in March 2026 an attacker force-pushed 76 of the
-      # 77 trivy-action tags (CVE-2026-33634). v0.35.0 = 57a97c7 was not affected.
+      # 77 trivy-action tags (CVE-2026-33634). Dependabot proposed v0.36.0; before accepting it,
+      # the SHA was checked against the signed v0.36.0 tag of the immutable release.
       - name: Trivy (report to Code scanning)
-        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25  # v0.36.0
         with:
           image-ref: a9-shop:${{ github.sha }}
           format: sarif
@@ -75,7 +76,7 @@ jobs:
           sarif_file: trivy.sarif
           category: trivy
       - name: Trivy gate (fail on fixable HIGH/CRITICAL)
-        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25  # v0.36.0
         with:
           image-ref: a9-shop:${{ github.sha }}
           format: table
@@ -91,7 +92,7 @@ jobs:
     needs: [image-scan]
     if: always()
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Start the shop
         run: |
           docker build -t a9-shop:ci app
@@ -103,7 +104,7 @@ jobs:
           mkdir -p zap && chmod 777 zap
           docker run --rm --network zapnet -v "$PWD/zap:/zap/wrk" zaproxy/zap-stable:2.17.0 \
             zap-baseline.py -t http://shop:8000 -r zap-baseline.html -J zap-baseline.json -I
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: zap-baseline-report
