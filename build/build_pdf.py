@@ -6,6 +6,7 @@ import subprocess
 import sys
 
 import markdown
+from PIL import Image
 
 HERE = pathlib.Path(__file__).resolve().parent
 SRC = HERE / "report.md"
@@ -35,16 +36,28 @@ table { border-collapse: collapse; width: 100%; margin: 5pt 0 8pt; font-size: 8.
 th, td { border: 1px solid #c8c8c8; padding: 3pt 5pt; vertical-align: top; text-align: left; }
 th { background: #eef1f4; }
 figure { margin: 6pt 0 10pt; text-align: center; break-inside: avoid; }
-figure img { max-width: 100%; max-height: 68mm; border: 1px solid #ccc; }
+figure img { max-width: 100%; max-height: 60mm; border: 1px solid #ccc; }
+figure img.term { width: 100%; max-height: none; border: 0; }
+figure.termfig { max-width: 100%; margin-left: auto; margin-right: auto; }
+.wide img { max-height: 98mm; }
 .pair { display: flex; gap: 6mm; align-items: flex-start; break-inside: avoid; }
 .pair figure { flex: 1 1 0; min-width: 0; }
-.pair figure img { max-height: 70mm; }
+.side { display: flex; gap: 6mm; align-items: flex-start; break-inside: avoid; margin: 3pt 0 8pt; }
+.side > p { flex: 1 1 0; margin: 0; }
+.side figure { flex: 1.4 1 0; margin: 0; }
+.pair figure.termfig { flex: 0 1 auto; margin: 6pt 0 10pt; }
+.pair figure img { max-height: 57mm; }
 figcaption { font-size: 8.3pt; color: #555; margin-top: 2pt; }
 .meta { color: #333; margin-bottom: 8pt; }
 """
 
 # Sections that start on a new page (by heading text prefix).
 NEW_PAGE = ()
+
+# Screenshots rendered by render_term.py from saved command output.
+# Small screenshots that need less than the default figure height.
+HEIGHTS = {"O1-actions-v1-fail": "50mm", "O1-codescanning-semgrep": "50mm", "E-dependabot-prs-2col": "82mm", "O2-zap-report-v1-crop": "40mm", "O1-trivy-action-pr": "52mm", "O1-actions-v2-pass": "46mm", "O1-codescanning-closed": "46mm"}
+TERMINALS = {"A-flake8", "O1-hadolint-trivy-config", "O1-trivy-raw", "O2-zap-v1", "O2-zap-v2"}
 
 
 def main() -> int:
@@ -54,26 +67,42 @@ def main() -> int:
     )
 
     n = {"fig": 0}
+    numbers = {}  # image stem -> figure number, for "Figure {stem}" references in the text
 
     def to_figure(m: re.Match) -> str:
         n["fig"] += 1
-        alt = html.unescape(m.group("alt"))
+        numbers[pathlib.Path(m.group("src")).stem] = n["fig"]
+        alt, src = html.unescape(m.group("alt")), m.group("src")
+        fig, cls = "<figure>", ""
+        if pathlib.Path(src).stem in TERMINALS:
+            # terminal captures: print at 90% of their natural size (captured at 1.5x), so the text stays ~8pt
+            fig = f'<figure class="termfig" style="width:{Image.open(HERE / src).width / 1.5 * 0.9:.0f}px">'
+            cls = ' class="term"'
+        elif pathlib.Path(src).stem in HEIGHTS:
+            cls = f' style="max-height:{HEIGHTS[pathlib.Path(src).stem]}"'
         return (
-            f'<figure><img src="{m.group("src")}" alt="{html.escape(alt)}">'
+            f'{fig}<img src="{src}" alt="{html.escape(alt)}"{cls}>'
             f"<figcaption>Figure {n['fig']}. {html.escape(alt)}</figcaption></figure>"
         )
 
     img = r'<img alt="(?P<alt>[^"]*)" src="(?P<src>[^"]+)"\s*/?>'
-    # two images in one paragraph -> side by side
-    body = re.sub(r"<p>(<img [^>]+>)\s*(<img [^>]+>)</p>",
-                  lambda m: '<div class="pair">' + re.sub(img, to_figure, m.group(1)) + re.sub(img, to_figure, m.group(2))
-                  + "</div>", body)
-    body = re.sub(r"<p>" + img + r"</p>", to_figure, body)
+    # one pass over the document, so figures are numbered in reading order;
+    # two images in one paragraph are placed side by side
+    # a paragraph whose last line is an image -> text and figure side by side
+    def para(m: re.Match) -> str:
+        figs = [to_figure(i) for i in re.finditer(img, m.group("imgs"))]
+        if m.group("text"):
+            return f'<div class="side"><p>{m.group("text")}</p>{figs[0]}</div>'
+        return figs[0] if len(figs) == 1 else '<div class="pair">' + "".join(figs) + "</div>"
+
+    body = re.sub(r"<p>(?:(?P<text>(?:(?!</p>).)*?)<br />\s*)?(?P<imgs>(?:" + img.replace("(?P<alt>", "(?:").replace("(?P<src>", "(?:")
+                  + r"\s*){1,2})</p>", para, body, flags=re.S)
     body = re.sub(
         r"<h2>(\d+\. )",
         lambda m: (f'<h2 class="newpage">{m.group(1)}' if m.group(1) in NEW_PAGE else f"<h2>{m.group(1)}"),
         body,
     )
+    body = re.sub(r"Figure \{([\w-]+)\}", lambda m: f"Figure {numbers[m.group(1)]}", body)
     body = body.replace("<p><strong>Name:</strong>", '<p class="meta"><strong>Name:</strong>', 1)
 
     missing = [s for s in re.findall(r'<img src="([^"]+)"', body) if not (HERE / s).exists()]
