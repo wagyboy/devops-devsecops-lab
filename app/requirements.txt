@@ -6,7 +6,7 @@ MarkupSafe==3.0.4
 itsdangerous==2.2.0
 click==8.5.1
 blinker==1.9.0
-gunicorn==26.2.0
+gunicorn==27.0.1
 packaging==26.3
 requests==2.34.2
 urllib3==2.8.0
