@@ -1,4 +1,4 @@
-FROM python:3.13-slim
+FROM python:3.15-slim
 
 # Debian security fix that is newer than the base image
 RUN apt-get update \
